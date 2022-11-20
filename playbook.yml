@@ -1,0 +1,12 @@
+---
+- hosts:
+    github
+  any_errors_fatal: true
+  gather_facts: no
+  tasks:
+    - name: apply role github
+      include_role:
+        name: github_role
+      with_items: "{{ repos }}"
+      loop_control:
+        loop_var: repo

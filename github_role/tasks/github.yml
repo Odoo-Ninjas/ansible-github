@@ -1,0 +1,16 @@
+---
+- name: Iterate deploykeys and add them
+  shell:
+    cmd: |
+      message=$(gh repo deploy-key add {{ deploy_key }} -w -R {{ repo.repo }} 2>&1 1>/dev/null)
+      if [[ ! -z "$message" ]]; then
+        if echo "$message" | grep -q "key is already in use"; then
+          echo "OK"
+        else
+          exit -1
+        fi
+      fi
+
+  loop: "{{ repo['deploy-keys'] is defined and repo['deploy-keys'] or [] }}"
+  loop_control:
+    loop_var: deploy_key
