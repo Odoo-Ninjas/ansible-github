@@ -1,14 +1,17 @@
 ---
 - name: Iterate deploykeys and add them
   shell:
+    executable: /bin/bash
     cmd: |
       set -x
       temp="$(tempfile)"
-      cat '{{ deploy_key }}' > $temp
+      echo '{{ deploy_key }}' > $temp
       message=$(gh repo deploy-key add "$temp" -w -R {{ repo.repo }} 2>&1 1>/dev/null)
-      echo $message > /tmp/1
+      rc=$?
+      echo $message > /tmp/2
+      echo "$rc" > /tmp/2
 
-      if [[ ! -z "$message" ]]; then
+      if [[ "$rc" != "0" ]]; then
         if echo "$message" | grep -q "key is already in use"; then
           echo "OK"
         else
