@@ -1,4 +1,6 @@
 ---
+- debug:
+    msg:  "{{ repo }}"
 - name: Iterate deploykeys and add them
   shell:
     executable: /bin/bash
@@ -6,7 +8,7 @@
       set -x
       temp="$(tempfile)"
       echo '{{ deploy_key }}' > $temp
-      message=$(gh repo deploy-key add "$temp" -w -R {{ repo.repo }} 2>&1 1>/dev/null)
+      message=$(gh repo deploy-key add "$temp" --allow-write -R {{ repo.repo }} 2>&1 1>/dev/null)
       rc=$?
       echo $message > /tmp/2
       echo "$rc" > /tmp/2
@@ -20,7 +22,12 @@
         fi
       fi
       rm "$temp"
+      echo "DONE {{ repo.repo }}"
 
-  loop: "{{ repo['deploy-keys'] is defined and repo['deploy-keys'] or [] }}"
+  loop: "{{ repo.deploy_keys is defined and repo.deploy_keys or [] }}"
   loop_control:
     loop_var: deploy_key
+
+- name: A helpful reminder of what to look out for post-update
+  pause:
+    prompt: "pause check it"
