@@ -27,7 +27,3 @@
   loop: "{{ repo.deploy_keys is defined and repo.deploy_keys or [] }}"
   loop_control:
     loop_var: deploy_key
-
-- name: A helpful reminder of what to look out for post-update
-  pause:
-    prompt: "pause check it"
