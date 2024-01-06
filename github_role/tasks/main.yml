@@ -1,3 +1,5 @@
 ---
 
-- include_tasks: "github.yml"
+- include_tasks: "deploy_key.yml"
+
+- include_tasks: "webhooks.yml"
