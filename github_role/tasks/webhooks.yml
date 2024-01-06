@@ -11,11 +11,9 @@
         --input - <<< '{
         "name": "web",
         "active": true,
-        "events": [
-          "push"
-        ],
+        "events": {{ webhook.events }}
         "config": {
-          "url": "{{ webhook }}",
+          "url": "{{ webhook.url }}",
           "content_type": "json"
         }
       }' 2>"$temp" 1>/dev/null

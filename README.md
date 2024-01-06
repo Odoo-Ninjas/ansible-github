@@ -13,6 +13,8 @@ github:
           deploy-keys:
             - {{ inventory_dir }}/ssh_keys/fair.id_rsa
           webhooks:
-            - http://host/trigger/repo/<project>/<password>
+            - url: http://host/trigger/repo/<project>/<password>
+              events:
+                - push
 
 ```
