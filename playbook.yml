@@ -7,6 +7,9 @@
     - name: apply role github
       include_role:
         name: github_role
+      vars:
+        organization: "{{ repo.repo.split('/')[0] }}"
+        reponame: "{{ repo.repo.split('/')[1] }}"
       with_items: "{{ repos }}"
       loop_control:
         loop_var: repo
