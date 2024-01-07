@@ -5,8 +5,10 @@
     executable: /bin/bash
     cmd: |
       set -x
-      err="$(tempfile)"
+      message="$(tempfile)"
       input_file="$(tempfile)"
+      message=/tmp/msg
+      message1=/tmp/msg1
 
       tee "$input_file" << 'EOF'
       {
@@ -21,18 +23,19 @@
       }
       EOF
 
-      cat "$input_file" | gh api /repos/{{ repo.repo }}/hooks --input - 2>"$message"
+      cat "$input_file" | gh api /repos/{{ repo.repo }}/hooks --input - 1>"$message1" 2>"$message"
       rc=$?
 
       if [[ "$rc" != "0" ]]; then
-        if echo "$message" | grep -q "Hook already exists"; then
+        if cat "$message1" | grep -q "Hook already exists"; then
           echo "OK"
         else
-          >&2 echo "$message"
+          >&2 cat "$message"
+          >&2 cat "$message1"
           exit -1
         fi
       fi
-      rm "$input_file"
+      rm "$input_file" "$message" "$message1"
       echo "DONE {{ repo.repo }}"
 
   loop: "{{ repo.webhooks is defined and repo.webhooks or [] }}"
