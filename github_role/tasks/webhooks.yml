@@ -5,30 +5,34 @@
     executable: /bin/bash
     cmd: |
       set -x
-      temp="$(tempfile)"
+      err="$(tempfile)"
+      input_file="$(tempfile)"
 
-      gh api /repos/{{ repo.repo }}/hooks \
-        --input - <<< '{
+      tee "$input_file" << 'EOF'
+      {
+        "type": "Repository",
         "name": "web",
         "active": true,
-        "events": {{ webhook.events }}
+        "events": {{ webhook.events | to_nice_json }},
         "config": {
           "url": "{{ webhook.url }}",
           "content_type": "json"
         }
-      }' 2>"$temp" 1>/dev/null
+      }
+      EOF
+
+      cat "$input_file" | gh api /repos/{{ repo.repo }}/hooks --input - 2>"$message"
       rc=$?
-      echo "$message"
 
       if [[ "$rc" != "0" ]]; then
-        if echo "$message" | grep -q "key is already in use"; then
+        if echo "$message" | grep -q "Hook already exists"; then
           echo "OK"
         else
           >&2 echo "$message"
           exit -1
         fi
       fi
-      rm "$temp"
+      rm "$input_file"
       echo "DONE {{ repo.repo }}"
 
   loop: "{{ repo.webhooks is defined and repo.webhooks or [] }}"
